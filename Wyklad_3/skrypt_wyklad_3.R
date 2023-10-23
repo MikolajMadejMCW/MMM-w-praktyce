@@ -20,7 +20,7 @@ class(data.1.3.df)
 # writing csv
 write.csv2(data.1.1.df, "example_write_base.csv")              # base
 write_csv2(data.1.1.df, "example_write_tidyverse2.csv")        # semicolon - dla klasycznych ustawien europejskich excela
-write_csv(data.1.1.df,  "example_write_tidyverse.csv")         # comma
+write_csv( data.1.1.df, "example_write_tidyverse.csv")         # comma
 
 
 # reading excel
@@ -55,6 +55,7 @@ head(data.readxl.raw.4.df)
 write_excel_csv2(data.readxl.raw.4.df, "example_write_xlsx.xls")
 
 
+
 # saving the whole environment 
 save.image("env.RData")
 rm(list = ls())
@@ -77,15 +78,26 @@ load("env.RData")
 
 
 # ZADANIE 1 - poprawnie wczytaj plik example_data_DFS.csv, nazwij obiekt zad.1.df
+zad.1.df <- read_csv2("example_data_DFS.csv")
+class(zad.1.df)
 
 # ZADANIE 2 - poprawnie wczytaj plik example_data_DFS.xlsx, nazwij obiekt zad.2.df
 
+zad.2.df = read_excel(path = "example_data_DFS.xlsx",
+                      sheet = 2,
+                      skip = 2)
+
+
 # ZADANIE 3 - z pliku example_data_DFS.xlsx wczytaj jedynie wiersze 3, 4, 5. Nazwij obiekt zad.3.df
+zad.3.df = read_excel(path = "example_data_DFS.xlsx",
+                      sheet = 2,
+                      range=cell_rows(3:5))
 
 # ZADANIE 4 - poprawnie wczytaj plik example_data_DFS.csv, automatycznie zmien typ wszystkich kolumn na character, nazwij obiekt zad.4.df 
 
 
-
+zad.4.df <- read_csv2('example_data_DFS.csv',
+          col_types = cols(.default = 'c'))
 
 #### pipelines and parsing #### --------------------------------------------------------------------------------------------
 
@@ -111,8 +123,18 @@ united.df <- separated.df %>%
 
 
 # ZADANIE 5 - sparsuj kolumnę variable name z ramki danych zad.1.df na medium, rok i nazwę, nazwij output zad.5.df
+zad.5.df <- zad.1.df %>%
+    separate('variable_name',
+             into = c("Medium","Rok","Nazwa"),
+             sep="_") %>%
+    unite(col = "Campaign",
+          c('Medium', 'Campaign'),
+          sep = " ")
+
+zad.5.df
 
 # ZADANIE 6 - kontynuując pipeline z zadania 5 stwórz nową kolumnę zawierającą informację o medium oraz pełną nazwę kampanii
+
 
 
 #### grouping and summarising #### -----------------------------------------------------------------------------------------
