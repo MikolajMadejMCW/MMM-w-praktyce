@@ -1,0 +1,141 @@
+---
+title: "Zajęcia R Markdown"
+subtitle: "**WNE**: Wprowadzenie do MMM"
+author: "Patryk Kwiatkowski"
+date: "2023.11.07"
+output: 
+    html_document:
+        toc: true
+        number_section: true
+---
+
+***
+
+<br>
+
+
+
+# Ukryty chunk
+
+Tutaj znajduje sie ukryty chunk, w ktorym wczytujemy pakiety (np. `library(tidyverse)`) oraz surowe dane
+
+> A tu jest przyklad blockquote'a
+
+```{r setup, include = F}
+library(tidyverse)
+
+data.raw.df <- read.csv2("example_data.csv",
+                         stringsAsFactors = F)
+```
+
+***
+
+<br>
+
+
+
+# Surowe dane
+
+Surowe dane wygladaja nastepujaco:
+```{r raw_data_head}
+as_tibble(data.raw.df)
+```
+
+***
+
+<br>
+
+
+
+# Przygotowanie danych
+
+Dane o **aktywnosci i kosztach TV** zostały wczytane i przerobione na format długi: 
+```{r wide_data_format, message=F}
+
+data.prep.df <- data.raw.df %>% 
+    mutate(Date = as.Date(Date),
+           Date = lubridate::floor_date(Date, unit = 'months')) %>% 
+    group_by(Date, Metric) %>% 
+    summarise(Value = sum(Value)) %>% 
+    ungroup() %>% 
+    pivot_wider(names_from  = 'Metric',
+                values_from = 'Value',
+                values_fill = 0)
+
+```
+
+***
+
+<br>
+
+
+
+# Wykres wydatkow TV
+
+Poniższy wykres przedstawia *zsumowaną wartość wydatków TV* brandów kosmetycznych w zadanym okresie czasu.
+
+```{r example_plot}
+ggplot(data.prep.df, aes(x = Date)) +
+    geom_line(aes(y = Cost)) +
+    theme_minimal()
+```
+
+***
+
+<br>
+
+
+
+# Funkcja gestosci rozkładu Gaussa
+
+Rozklad normalny jest najczesciej wykorzystywanym rozkladem w statystyce
+```{r, eval = F}
+y = (1 / (sigma * sqrt(2*pi)) * exp(-0.5*((x-mu)/sigma)^2))
+```
+
+<br>
+
+Zapis bardziej elegancki:
+
+![Wzor_z_internetu](https://www.investopedia.com/thmb/vEnFyFaX2zK96wVerxokPmEt3dU=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Clipboard01-fdb217713438416cadafc48a1e4e5ee4.jpg){width=75% height=75%}
+
+
+
+***
+
+<br>
+
+
+
+# Interaktywne **raporty**
+
+## Pakiety
+Raporty knitowane do formatu HTML mogą być interaktywne przy wykorzystaniu takich pakietów jak:
+
+* Shiny
+* plotly
+* etc.
+
+<br>
+
+## Interaktywny wykres
+
+```{r plotly_wykres, message=F}
+data.prep.brands.df <- data.raw.df %>% 
+    mutate(Date = as.Date(Date),
+           Date = lubridate::floor_date(Date, unit = 'months')) %>% 
+    group_by(Date, Brand, Metric) %>% 
+    summarise(Value = sum(Value)) %>% 
+    ungroup() %>% 
+    pivot_wider(names_from = 'Metric',
+                values_from = 'Value',
+                values_fill = 0)
+
+plot_gg <- ggplot(data.prep.brands.df, aes(x = Date)) +
+    geom_line(aes(y = TRP, col = Brand)) + 
+    theme_minimal()
+
+plotly::ggplotly(plot_gg)
+
+```
+
