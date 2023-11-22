@@ -8,54 +8,35 @@ data.df <- read_excel("sales_data.xlsx")
 #### 1 - modeled variable #### 
 
 mod.var.df <- data.df %>%
-    select(Date, starts_with("VO_")) %>%
-    mutate(ZM_MOD = VO_BEER_SKU1 + VO_BEER_SKU2 + VO_BEER_SKU3) %>%
-    mutate(ZM_MOD_LOG = log(ZM_MOD))
-
-mod.var.df <- data.df %>%
-    select(Date, starts_with("VO_")) %>%
-    rowwise()%>%
-    mutate(ZM_MOD = sum(VO_BEER_SKU1, VO_BEER_SKU2, VO_BEER_SKU3)) %>%
-    mutate(ZM_MOD_LOG = log(ZM_MOD))
-
-mod.var.df <- data.df %>%
     select(Date, starts_with("VO_BEER")) %>%
     mutate(ZM_MOD = rowSums(.[,-1])) %>%
     mutate(ZM_MOD = log(ZM_MOD)) %>%
     select(Date, ZM_MOD)
-    
 
-    
-    
+
 #### 2 - shelf price #### 
 
 price.shelf.1.df <- data.df %>%
-    select(Date, starts_with("VA"), starts_with("VO")) %>%
-    mutate(PR_BEER_SKU1 = VA_BEER_SKU1 / VO_BEER_SKU1,
-           PR_BEER_SKU2 = VA_BEER_SKU2 / VO_BEER_SKU2,
-           PR_BEER_SKU3 = VA_BEER_SKU3 / VO_BEER_SKU3)
-    
-
-
-price.shelf.1.df <- data.df %>%
-    select(Date, starts_with("VA"), starts_with("VO")) %>%
-    pivot_longer(names_to = "variable", values_to = "value", c(2:ncol(.)))
-    
+    select(Date, starts_with("VO_BEER_SKU"), starts_with("VA_BEER_SKU")) %>%
+    pivot_longer(names_to = "variable_name", c(2:ncol(.)))
     
 price.shelf.2.df <- price.shelf.1.df %>%
-    mutate(metric = substr(variable, 1, 2)) %>%
-    mutate(SKU    = substr(variable, 3, 200)) %>%
-    select(-variable) %>%
-    pivot_wider(names_from = metric, values_from = value)
+    mutate(TYP = substr(variable_name, 1, 3),
+           SKU = substr(variable_name, 4, nchar(variable_name))) %>%
+    select(-variable_name) %>%
+    pivot_wider(names_from = "TYP", values_from = "value")
 
 price.shelf.3.df <- price.shelf.2.df %>%
-    mutate(PR = VA / VO)
+    mutate(PR_ = VA_ / VO_)
 
 price.shelf.4.df <- price.shelf.3.df %>%
-    pivot_longer(names_to = "metric", values_to = "value", c(3:ncol(.))) %>%
-    mutate(final_var = paste(metric, SKU, sep = "")) %>%
-    select(-SKU, -metric) %>%
-    pivot_wider(names_from = final_var, values_from = value)
+    pivot_longer(names_to = "variable_name", c(3:ncol(.))) %>%
+    mutate(variable_name = paste(variable_name, SKU, sep = "")) %>%
+    select(-SKU) %>%
+    pivot_wider(names_from = "variable_name", values_from = "value")
+
+# data.df$PR_BEER_SKU1 <- data.df$VA_BEER_SKU1 / data.df$VO_BEER_SKU1
+
 
 
 #### 3 - longterm price #### 
@@ -106,14 +87,9 @@ ggplot(price.shortterm.df, aes(c(1:rows), PS_BEER_SKU1)) +
 #### 5 - distribution #### 
 
 distribution.df <- data.df %>%
-    select(Date, starts_with("DW")) %>%
-    mutate(DW_TOT = pmax(DW_BEER_SKU1, DW_BEER_SKU2, DW_BEER_SKU3))
+    select(Date, starts_with("DW_BEER")) %>%
+    mutate(DW_BEER = pmax(DW_BEER_SKU1, DW_BEER_SKU2, DW_BEER_SKU3)) %>%
+    select(Date, DW_BEER)
 
 
-
-#### 6 - shop weights #### 
-
-shop.weights.df <- data.df %>%
-    # ...
-    
 
