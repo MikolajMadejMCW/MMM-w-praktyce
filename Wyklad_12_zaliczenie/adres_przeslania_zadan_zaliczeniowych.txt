@@ -1,0 +1,8 @@
+Adres na który prosimy o przesłanie zaliczeń:
+mikolaj.madej@essencemediacom.com
+
+format zadań zaliczeniowych - .zip zawierajacy:
+* kod w R / markdown
+* projekt R
+* pliki .csv, .xlsx, .txt, które są niezbędne do egzekucji kodu
+

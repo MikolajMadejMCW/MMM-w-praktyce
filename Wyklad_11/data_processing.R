@@ -27,6 +27,7 @@ tv.dict = c("TV_45" = 1.50,
             "TV_15" = 0.70,
             "TV_10" = 0.55)
 
+
 media.prep.df <- media.df %>%
     pivot_longer(names_to = "variable_name", c(2:ncol(.))) %>%
     mutate(idx = tv.dict[variable_name]) %>%
@@ -36,6 +37,7 @@ media.prep.df <- media.df %>%
     mutate(TV = rowSums(.[,-1])) %>%
     select(Date, TV)
     
+
 media.adstock.df <- media.prep.df %>%
     mutate(TV_ADS60 = c(28.99400, rep(NA, 155))) 
 
